@@ -1,0 +1,64 @@
+name: Analyze Salesforce Flow XML
+
+on:
+  pull_request:
+    paths:
+      - "**.xml"
+  workflow_dispatch:
+    inputs:
+      file_path:
+        description: "Path to the XML file to analyze"
+        required: true
+        default: ""
+
+jobs:
+  analyze-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Determine XML file to analyze
+        id: file-to-analyze
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "FILE_PATH=${{ github.event.inputs.file_path }}" >> $GITHUB_ENV
+          else
+            # Get first changed XML file in PR
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '\.xml$' || echo "")
+            FIRST_XML=$(echo "$CHANGED_FILES" | head -n 1)
+            echo "FILE_PATH=$FIRST_XML" >> $GITHUB_ENV
+          fi
+
+      - name: Run Flow XML Analysis
+        id: flow-analysis
+        uses: yourusername/salesforce-flow-xml-analyzer@v1
+        with:
+          claude_api_key: ${{ secrets.CLAUDE_API_KEY }}
+          file_path: ${{ env.FILE_PATH }}
+          # Optional: Use a different Claude model
+          # claude_model: claude-3-sonnet-20240229
+          # Optional: Custom analysis prompt
+          # analysis_prompt: Analyze this Salesforce Flow XML and identify potential issues:\n\n{JSON} Output as JSON with Risk, Description, and Recommendation columns.
+
+      - name: Comment on PR with Analysis Results
+        if: github.event_name == 'pull_request' && steps.flow-analysis.outputs.has_risks == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const reportContent = `${{ steps.flow-analysis.outputs.report_content }}`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reportContent
+            });
+
+      - name: Upload analysis report as artifact
+        if: steps.flow-analysis.outputs.has_risks == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: flow-analysis-report
+          path: ${{ steps.flow-analysis.outputs.report_path }}
+          retention-days: 14

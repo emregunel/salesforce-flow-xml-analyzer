@@ -1,0 +1,26 @@
+{
+  "name": "salesforce-flow-xml-analyzer",
+  "version": "1.0.0",
+  "description": "GitHub Action to analyze Salesforce Flow XML files for risks using Claude AI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "github-action",
+    "salesforce",
+    "flow",
+    "xml",
+    "risk-analysis",
+    "claude"
+  ],
+  "author": "Emre Günel",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "axios": "^1.3.4",
+    "cli-table3": "^0.6.3",
+    "fast-xml-parser": "^4.2.2"
+  }
+}
