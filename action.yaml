@@ -32,7 +32,7 @@ jobs:
 
       - name: Run Flow XML Analysis
         id: flow-analysis
-        uses: yourusername/salesforce-flow-xml-analyzer@v1
+        uses: emregunel/salesforce-flow-xml-analyzer@v1
         with:
           claude_api_key: ${{ secrets.CLAUDE_API_KEY }}
           file_path: ${{ env.FILE_PATH }}

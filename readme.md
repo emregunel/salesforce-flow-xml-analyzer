@@ -36,7 +36,7 @@ jobs:
 
       - name: Analyze Flow XML
         id: analyze
-        uses: yourusername/flow-xml-analyzer@v1
+        uses: emregunel/flow-xml-analyzer@v1
         with:
           claude_api_key: ${{ secrets.CLAUDE_API_KEY }}
           file_path: ${{ github.event.inputs.file_path || 'path/to/your/flow.xml' }}
@@ -112,7 +112,7 @@ jobs:
       - name: Analyze first XML file
         if: steps.changed-files.outputs.all_changed_files != ''
         id: analyze
-        uses: yourusername/flow-xml-analyzer@v1
+        uses: emregunel/flow-xml-analyzer@v1
         with:
           claude_api_key: ${{ secrets.CLAUDE_API_KEY }}
           file_path: ${{ steps.changed-files.outputs.all_changed_files_array[0] }}
